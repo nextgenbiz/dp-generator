@@ -1,30 +1,34 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { toPng, toJpeg } from "html-to-image";
+import { toPng } from "html-to-image";
 
 /* 🎨 BACKGROUND THEMES */
+/* 🎨 BACKGROUND THEMES */
 const BG_THEMES = {
-  softBlue: "#0C7779",
-  softGreen: "#C75D2C",
-  softGray: "#1E4976",
+  softBlue: "#0C7779", // Teal (corporate, calm)
+  softGreen: "#C75D2C", // Burnt orange (energy, leadership)
+  softGray: "#1E4976", // Deep steel blue (enterprise look)
 };
 
-/* 🏢 Branch → Background + Badge */
+/* 🏢 Branch → Ring Colors */
 const BRANCH_CONFIG = {
   pune: {
-    bg: "softBlue",
-    badge: "rgba(12,119,121,0.82)",
+    bg: "#E6F4F4",
+    ring: "#0C7779", // Royal blue
+    gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     name: "Pune Branch",
   },
   chennai: {
-    bg: "softGreen",
-    badge: "rgba(199, 93, 44,0.82)",
+    bg: "#FBEDE6",
+    ring: "#C75D2C", // Deep blue
+    gradient: "linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)",
     name: "Chennai Branch",
   },
   ahmedabad: {
-    bg: "softGray",
-    badge: "rgba(30, 73, 118,0.82)",
+    bg: "#E9EFF6",
+    ring: "#1E4976", // Dark blue
+    gradient: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
     name: "Ahmedabad Branch",
   },
 };
@@ -43,11 +47,15 @@ function getAutoFontSize(text, max = 18, min = 12) {
 export default function DPGeneratorSVG() {
   const size = 512;
   const radius = size / 2;
+  const OUTER_RING_R = size * 0.45;
+  const INNER_RING_R = size * 0.36;
+  const TEXT_INSIDE_R = (OUTER_RING_R + INNER_RING_R) / 2;
+  const TEXT_RING_CENTER_R = (OUTER_RING_R + INNER_RING_R) / 2;
 
   /* -------- STATE -------- */
   const [branch, setBranch] = useState("pune");
   const [gender, setGender] = useState("male");
-  const [name, setName] = useState("Vikas  Parmar");
+  const [name, setName] = useState("Parmar Vikas");
   const [designation, setDesignation] = useState("Full-Stack Developer");
   const [uploadedImage, setUploadedImage] = useState(null);
   const isUploaded = Boolean(uploadedImage);
@@ -60,6 +68,11 @@ export default function DPGeneratorSVG() {
   const [isDragging, setIsDragging] = useState(false);
   const [lastMouse, setLastMouse] = useState({ x: 0, y: 0 });
   const [whatsappMode, setWhatsappMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [brightness, setBrightness] = useState(100);
+  const [contrast, setContrast] = useState(105);
+  const [saturation, setSaturation] = useState(110);
+
   const svgRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -68,14 +81,8 @@ export default function DPGeneratorSVG() {
   const avatarSrc = uploadedImage
     ? uploadedImage
     : gender === "male"
-    ? "male.png"
-    : "female.png";
-
-  /* -------- BADGE -------- */
-  const badgeWidth = 430;
-  const badgeHeight = 65;
-  const badgeX = (size - badgeWidth) / 2;
-  const badgeY = size - badgeHeight - 20;
+    ? "/male.png"
+    : "/female.png";
 
   /* -------- IMAGE UPLOAD -------- */
   const handleImageUpload = (e) => {
@@ -150,17 +157,75 @@ export default function DPGeneratorSVG() {
     };
   }, [isUploaded]);
 
+  /* -------- PRELOAD IMAGES -------- */
+  useEffect(() => {
+    // Preload default images
+    const preloadImages = () => {
+      const maleImg = new Image();
+      maleImg.src = "/male.png";
+
+      const femaleImg = new Image();
+      femaleImg.src = "/female.png";
+    };
+
+    preloadImages();
+  }, []);
+
+  /* -------- DOWNLOAD FUNCTION -------- */
+  const handleDownload = async () => {
+    if (isDownloading) return;
+
+    setIsDownloading(true);
+    try {
+      const svg = svgRef.current;
+
+      const dataUrl = await toPng(svg, {
+        quality: 1.0,
+        pixelRatio: 2,
+        backgroundColor: "#f8fafc",
+        skipFonts: true,
+        cacheBust: true,
+      });
+
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `professional-profile-${branch}-${name
+        .toLowerCase()
+        .replace(/\s+/g, "-")}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error generating PNG:", error);
+      alert(
+        "Failed to generate image. Please make sure all images are loaded and try again."
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  /* -------- RESET PHOTO -------- */
+  const handleResetPhoto = () => {
+    setOffsetX(0);
+    setOffsetY(0);
+    setZoomOffset(0);
+    setBrightness(100);
+    setContrast(105);
+    setSaturation(110);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Profile Picture Generator
+            Professional Profile Badge Generator
           </h1>
           <p className="text-gray-600">
-            Create professional display pictures with customizable backgrounds
-            and badges
+            Create corporate-style circular profile badges with studio-quality
+            photos
           </p>
         </div>
 
@@ -170,14 +235,14 @@ export default function DPGeneratorSVG() {
             {/* Control Card */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-3 border-b">
-                Customize Profile
+                Customize Profile Badge
               </h2>
 
               <div className="space-y-6">
                 {/* Branch Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Branch
+                    Select Branch Style
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {Object.entries(BRANCH_CONFIG).map(([key, config]) => (
@@ -193,7 +258,7 @@ export default function DPGeneratorSVG() {
                         <div className="flex flex-col items-center">
                           <div
                             className="w-8 h-8 rounded-full mb-2"
-                            style={{ backgroundColor: config.badge }}
+                            style={{ backgroundColor: config.ring }}
                           />
                           <span className="text-sm font-medium text-gray-700">
                             {config.name}
@@ -248,7 +313,7 @@ export default function DPGeneratorSVG() {
                 {/* Image Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload Custom Image
+                    Upload Professional Photo
                   </label>
                   <div className="space-y-3">
                     <input
@@ -268,10 +333,10 @@ export default function DPGeneratorSVG() {
                           <span className="text-blue-600 text-xl">↑</span>
                         </div>
                         <span className="text-gray-700 font-medium">
-                          Click to upload image
+                          Upload Studio Photo
                         </span>
                         <span className="text-sm text-gray-500 mt-1">
-                          PNG, JPG, WEBP up to 5MB
+                          PNG, JPG up to 5MB
                         </span>
                       </div>
                     </label>
@@ -282,7 +347,7 @@ export default function DPGeneratorSVG() {
                           onClick={handleRemoveImage}
                           className="flex-1 py-2 px-4 bg-red-50 text-red-700 rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
                         >
-                          Remove Image
+                          Remove Photo
                         </button>
                       </div>
                     )}
@@ -298,7 +363,7 @@ export default function DPGeneratorSVG() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-800"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700"
                     placeholder="Enter full name"
                   />
                 </div>
@@ -306,80 +371,91 @@ export default function DPGeneratorSVG() {
                 {/* Designation Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Designation
+                    Designation / Title
                   </label>
                   <input
                     type="text"
                     value={designation}
                     onChange={(e) => setDesignation(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-800"
-                    placeholder="Enter designation"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700"
+                    placeholder="e.g., Leadership Coach | Tech Innovator"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This will appear curved around the top of the badge
+                  </p>
                 </div>
 
                 {/* Image Controls */}
                 {isUploaded && (
                   <div className="pt-4 border-t">
                     <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Image Controls
+                      Photo Controls
                     </label>
                     <div className="space-y-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setFitMode("fit")}
-                          className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-                            fitMode === "fit"
-                              ? "bg-blue-500 text-white border-blue-500"
-                              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-                          }`}
-                        >
-                          Fit
-                        </button>
-                        <button
-                          onClick={() => setFitMode("fill")}
-                          className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-                            fitMode === "fill"
-                              ? "bg-blue-500 text-white border-blue-500"
-                              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-                          }`}
-                        >
-                          Fill
-                        </button>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm text-gray-600">
-                          <span>Zoom</span>
-                          <span>{Math.round(zoomScale * 100)}%</span>
+                      {/* Photo Adjustments */}
+                      <div className="space-y-4 mt-4">
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            onClick={handleResetPhoto}
+                            className="flex-1 py-2 px-3 bg-gray-100 rounded border border-gray-300 text-gray-700 hover:bg-gray-200 transition-colors"
+                          >
+                            Reset Adjustments
+                          </button>
                         </div>
-                        <input
-                          type="range"
-                          min="-100"
-                          max="100"
-                          value={zoomOffset}
-                          onChange={(e) =>
-                            setZoomOffset(parseInt(e.target.value))
-                          }
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
-                        />
-                      </div>
-
-                      <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
-                        <p className="font-medium mb-1">Tips:</p>
-                        <ul className="list-disc list-inside space-y-1">
-                          <li>Drag image to reposition</li>
-                          <li>Use mouse wheel to zoom</li>
-                          <li>Use slider for precise zoom</li>
-                        </ul>
                       </div>
                     </div>
                   </div>
                 )}
+
+                {/* WhatsApp Preview Toggle */}
+
+                {/* Download Button */}
+                <div className="pt-6">
+                  <button
+                    onClick={handleDownload}
+                    disabled={isDownloading}
+                    className={`w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg ${
+                      isDownloading ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {isDownloading ? (
+                      <span className="flex items-center justify-center">
+                        <svg
+                          className="animate-spin h-5 w-5 mr-2 text-white"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        Generating...
+                      </span>
+                    ) : whatsappMode ? (
+                      "Download for WhatsApp"
+                    ) : (
+                      "Download Professional Badge"
+                    )}
+                  </button>
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Downloads as high-resolution PNG (1024x1024)
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Middle Column - Preview */}
+          {/* Right Column - Preview */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-lg p-6 h-full">
               <div className="flex flex-col items-center justify-center h-full">
@@ -387,197 +463,345 @@ export default function DPGeneratorSVG() {
                   Preview
                 </h2>
 
-                <div className="relative">
+                {/* WhatsApp Preview Container */}
+                <div
+                  className={`relative ${
+                    whatsappMode ? "p-8 bg-[#0C1317] rounded-2xl" : ""
+                  }`}
+                >
+                  {/* WhatsApp UI Mockup */}
+                  {whatsappMode && (
+                    <div className="absolute top-0 left-0 right-0 z-10 pointer-events-none">
+                      {/* WhatsApp Header */}
+                      <div className="flex items-center justify-between px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                            <span className="text-white text-lg">←</span>
+                          </div>
+                          <div>
+                            <div className="w-32 h-4 bg-gray-700 rounded mb-1"></div>
+                            <div className="w-24 h-3 bg-gray-600 rounded"></div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="w-6 h-6 bg-gray-600 rounded-full"></div>
+                          <div className="w-6 h-6 bg-gray-600 rounded-full"></div>
+                        </div>
+                      </div>
+
+                      {/* WhatsApp Crop Guide */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px]">
+                        <div className="absolute inset-0 border-2 border-dashed border-green-400/50 rounded-full"></div>
+                        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-green-400 text-sm bg-[#0C1317] px-3 py-1 rounded-full">
+                          WhatsApp crop area
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Main SVG */}
                   <svg
                     ref={svgRef}
                     width={size}
                     height={size}
                     viewBox={`0 0 ${size} ${size}`}
-                    className={`rounded-full shadow-xl transition-transform ${
+                    className={`rounded-full shadow-xl transition-transform relative z-0 ${
                       isDragging ? "cursor-grabbing" : "cursor-grab"
-                    }`}
+                    } ${whatsappMode ? "scale-90" : ""}`}
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={stopDragging}
                     onMouseLeave={stopDragging}
                   >
                     <defs>
-                      <clipPath id="avatarClip">
-                        <circle cx={radius} cy={radius} r={radius} />
+                      <clipPath id="photoClip">
+                        <circle cx={size / 2} cy={size / 2} r={size * 0.35} />
                       </clipPath>
+
+                      {whatsappMode && (
+                        <clipPath id="whatsappClip">
+                          <circle cx={size / 2} cy={size / 2} r={size * 0.4} />
+                        </clipPath>
+                      )}
+
+                      <linearGradient
+                        id="ringGradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop offset="0%" stopColor={branchConfig.ring} />
+                        <stop
+                          offset="100%"
+                          stopColor={branchConfig.ring}
+                          stopOpacity="0.9"
+                        />
+                      </linearGradient>
+
+                      <path
+                        id="textPathTopInside"
+                        d={`
+    M ${radius - TEXT_RING_CENTER_R} ${radius}
+    A ${TEXT_RING_CENTER_R} ${TEXT_RING_CENTER_R} 0 0 1
+      ${radius + TEXT_RING_CENTER_R} ${radius}
+  `}
+                        fill="none"
+                      />
+
+                      <path
+                        id="textPathBottomInside"
+                        d={`
+    M ${radius - TEXT_RING_CENTER_R} ${radius}
+    A ${TEXT_RING_CENTER_R} ${TEXT_RING_CENTER_R} 0 0 0
+      ${radius + TEXT_RING_CENTER_R} ${radius}
+  `}
+                        fill="none"
+                      />
                     </defs>
 
+                    <rect width={size} height={size} fill="#f8fafc" />
+
+                    {/* Blue ring */}
                     <circle
-                      cx={radius}
-                      cy={radius}
-                      r={radius}
-                      fill={BG_THEMES[branchConfig.bg]}
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={size * 0.45}
+                      fill="url(#ringGradient)"
                     />
 
-                    {isUploaded && (
+                    {/* Inner white border */}
+                    <circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={size * 0.36}
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="4"
+                    />
+
+                    {/* Profile area */}
+                    <circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={size * 0.35}
+                      fill={branchConfig.bg}
+                    />
+
+                    {/* Profile photo */}
+                    {isUploaded ? (
                       <image
                         href={uploadedImage}
-                        x={offsetX}
-                        y={offsetY}
-                        width={imageSize.width * zoomScale}
-                        height={imageSize.height * zoomScale}
-                        preserveAspectRatio={
-                          fitMode === "fit" ? "xMidYMid meet" : "xMidYMid slice"
+                        x={offsetX + size * 0.15}
+                        y={offsetY + size * 0.15}
+                        width={imageSize.width * zoomScale * 0.7}
+                        height={imageSize.height * zoomScale * 0.7}
+                        preserveAspectRatio="xMidYMid slice"
+                        clipPath={
+                          whatsappMode
+                            ? "url(#whatsappClip)"
+                            : "url(#photoClip)"
                         }
-                        clipPath="url(#avatarClip)"
+                        style={{
+                          filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
+                        }}
                       />
-                    )}
-
-                    {!isUploaded && (
+                    ) : (
                       <image
                         href={avatarSrc}
-                        x="0"
-                        y="35"
-                        width={size}
-                        height={size}
+                        x={size * 0.15}
+                        y={size * 0.15}
+                        width={size * 0.7}
+                        height={size * 0.76}
                         preserveAspectRatio="xMidYMid slice"
-                        clipPath="url(#avatarClip)"
+                        clipPath={
+                          whatsappMode
+                            ? "url(#whatsappClip)"
+                            : "url(#photoClip)"
+                        }
+                        style={{
+                          filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
+                        }}
                       />
                     )}
 
-                    <rect
-                      x={badgeX}
-                      y={badgeY}
-                      width={badgeWidth}
-                      height={badgeHeight}
-                      fill={branchConfig.badge}
-                    />
-
+                    {/* Designation - Curved at TOP */}
                     <text
-                      x={size / 2}
-                      y={badgeY + 28}
-                      textAnchor="middle"
-                      fontSize={getAutoFontSize(name, 22, 14)}
-                      fill="#FFFFFF"
-                      fontWeight="600"
-                      letterSpacing="0.4px"
-                      style={{ textShadow: "0 1px 2px rgba(0,0,0,0.7)" }}
+                      fill="#ffffff"
+                      fontSize="20"
+                      fontFamily="Arial, sans-serif"
+                      fontWeight="700"
+                      letterSpacing="1px"
+                      dominantBaseline="middle"
                     >
-                      {name}
+                      <textPath
+                        href="#textPathTopInside"
+                        startOffset="50%"
+                        textAnchor="middle"
+                        dy="1"
+                      >
+                        {designation.toUpperCase()}
+                      </textPath>
                     </text>
 
+                    {/* Name - Curved at BOTTOM */}
                     <text
-                      x={size / 2}
-                      y={badgeY + 48}
-                      textAnchor="middle"
-                      fontSize={getAutoFontSize(designation, 16, 11)}
-                      fill="#F1F5F9"
-                      letterSpacing="0.3px"
-                      style={{ textShadow: "0 1px 1px rgba(0,0,0,0.6)" }}
+                      fill="#ffffff"
+                      fontSize="20"
+                      fontFamily="Arial, sans-serif"
+                      fontWeight="700"
+                      letterSpacing="1.5px"
+                      dominantBaseline="middle"
                     >
-                      {designation}
+                      <textPath
+                        href="#textPathBottomInside"
+                        startOffset="50%"
+                        textAnchor="middle"
+                        dy="1"
+                      >
+                        {name.toUpperCase()}
+                      </textPath>
                     </text>
+
+                    {/* Professional Profile */}
                   </svg>
 
-                  {/* Preview Info */}
-                  {/* Preview Info */}
-                  <div className="mt-6 space-y-4">
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">Branch:</span>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div
-                              className="w-4 h-4 rounded-full"
-                              style={{ backgroundColor: branchConfig.badge }}
+                  {/* WhatsApp Tips */}
+                  {whatsappMode && (
+                    <div className="mt-6 p-4 bg-green-900/20 border border-green-800/30 rounded-lg">
+                      <h4 className="font-medium text-green-400 mb-2">
+                        WhatsApp Tips:
+                      </h4>
+                      <ul className="text-sm text-green-300 space-y-1">
+                        <li>• WhatsApp crops profile pictures to a circle</li>
+                        <li>
+                          • We've adjusted text position to avoid cropping
+                        </li>
+                        <li>• Download will include proper circular mask</li>
+                        <li>• Preview shows actual WhatsApp UI</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Preview Info */}
+                <div className="mt-6 space-y-4 w-full">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Branch Style:</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div
+                            className="w-4 h-4 rounded-full"
+                            style={{ background: branchConfig.gradient }}
+                          />
+                          <span className="font-medium">
+                            {branchConfig.name}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Photo:</span>
+                        <p className="font-medium mt-1">
+                          {isUploaded ? "Custom Upload" : `Default (${gender})`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Company Portal Element */}
+                  <div className="border rounded-lg p-4 bg-gradient-to-r from-gray-50 to-gray-100">
+                    <h3 className="font-semibold text-gray-800 mb-3">
+                      Dashboard Preview
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-gray-700">
+                          Company Portal
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Welcome back, {name}
+                        </p>
+                      </div>
+                      <div className="relative">
+                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow">
+                          <svg
+                            width="48"
+                            height="48"
+                            viewBox={`0 0 ${size} ${size}`}
+                          >
+                            <defs>
+                              <clipPath id="dashboardPhotoClip">
+                                <circle
+                                  cx={size / 2}
+                                  cy={size / 2}
+                                  r={size * 0.35}
+                                />
+                              </clipPath>
+                            </defs>
+
+                            {/* Blue ring */}
+                            <circle
+                              cx={size / 2}
+                              cy={size / 2}
+                              r={size * 0.45}
+                              fill={branchConfig.ring}
                             />
-                            <span className="font-medium text-gray-700">
-                              {branchConfig.name}
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Image:</span>
-                          <p className="font-medium mt-1 text-gray-700">
-                            {isUploaded
-                              ? "Custom Upload"
-                              : `Default (${gender})`}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Company Portal Element */}
-                    <div className="border rounded-lg p-4 bg-gradient-to-r from-gray-50 to-gray-100">
-                      <h3 className="font-semibold text-gray-800 mb-3">
-                        Dashboard Preview
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium text-gray-700">
-                            Company Portal
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            Welcome back, {name}
-                          </p>
-                        </div>
-                        <div className="relative">
-                          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow">
-                            <svg
-                              width="48"
-                              height="48"
-                              viewBox={`0 0 ${size} ${size}`} // Same viewBox as main preview!
-                            >
-                              <defs>
-                                <clipPath id="dashboardAvatarClip">
-                                  <circle
-                                    cx={size / 2}
-                                    cy={size / 2}
-                                    r={size / 2}
-                                  />
-                                </clipPath>
-                              </defs>
+                            {/* Inner white border */}
+                            <circle
+                              cx={size / 2}
+                              cy={size / 2}
+                              r={size * 0.36}
+                              fill="none"
+                              stroke="#ffffff"
+                              strokeWidth="4"
+                            />
 
-                              {/* Background - same as main */}
-                              <circle
-                                cx={size / 2}
-                                cy={size / 2}
-                                r={size / 2}
-                                fill={BG_THEMES[branchConfig.bg]}
+                            {/* Profile photo container */}
+                            <circle
+                              cx={size / 2}
+                              cy={size / 2}
+                              r={size * 0.35}
+                              fill="#f1f5f9"
+                            />
+
+                            {/* Profile photo */}
+                            {isUploaded ? (
+                              <image
+                                href={uploadedImage}
+                                x={offsetX + size * 0.15}
+                                y={offsetY + size * 0.15}
+                                width={imageSize.width * zoomScale * 0.7}
+                                height={imageSize.height * zoomScale * 0.7}
+                                preserveAspectRatio="xMidYMid slice"
+                                clipPath="url(#dashboardPhotoClip)"
+                                style={{
+                                  filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
+                                }}
                               />
-
-                              {/* Image - EXACT SAME PARAMETERS as main preview */}
-                              {isUploaded && (
-                                <image
-                                  href={uploadedImage}
-                                  x={offsetX}
-                                  y={offsetY}
-                                  width={imageSize.width * zoomScale}
-                                  height={imageSize.height * zoomScale}
-                                  preserveAspectRatio={
-                                    fitMode === "fit"
-                                      ? "xMidYMid meet"
-                                      : "xMidYMid slice"
-                                  }
-                                  clipPath="url(#dashboardAvatarClip)"
-                                />
-                              )}
-
-                              {!isUploaded && (
-                                <image
-                                  href={avatarSrc}
-                                  x="0"
-                                  y="35"
-                                  width={size}
-                                  height={size}
-                                  preserveAspectRatio="xMidYMid slice"
-                                  clipPath="url(#dashboardAvatarClip)"
-                                />
-                              )}
-                            </svg>
-                          </div>
+                            ) : (
+                              <image
+                                href={avatarSrc}
+                                x={size * 0.15}
+                                y={size * 0.15}
+                                width={size * 0.7}
+                                height={size * 0.7}
+                                preserveAspectRatio="xMidYMid slice"
+                                clipPath="url(#dashboardPhotoClip)"
+                                style={{
+                                  filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
+                                }}
+                              />
+                            )}
+                          </svg>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-3">
-                        This is how your profile will appear in the company
-                        portal
-                      </p>
                     </div>
+                    <p className="text-xs text-gray-500 mt-3">
+                      This is how your professional badge will appear in the
+                      company portal
+                    </p>
                   </div>
                 </div>
               </div>
@@ -585,50 +809,12 @@ export default function DPGeneratorSVG() {
           </div>
         </div>
 
-        {/* Download Button */}
-        <div className="pt-6">
-          <button
-            onClick={async () => {
-              try {
-                const svg = svgRef.current;
-
-                // Convert SVG to PNG with high quality
-                const dataUrl = await toPng(svg, {
-                  quality: 1.0, // Maximum quality
-                  pixelRatio: 2, // 2x resolution for crisp image
-                  backgroundColor: BG_THEMES[branchConfig.bg], // Fallback background
-                  skipFonts: true, // Don't try to load fonts
-                  cacheBust: true, // Bust cache for images
-                  includeQueryParams: true, // Include query params for images
-                });
-
-                // Trigger download
-                const a = document.createElement("a");
-                a.href = dataUrl;
-                a.download = `profile-${branch}-${name
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}.png`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-              } catch (error) {
-                console.error("Error generating PNG:", error);
-                alert(
-                  "Failed to generate image. Please make sure all images are loaded and try again."
-                );
-              }
-            }}
-            className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
-          >
-            {whatsappMode ? "Download PNG for WhatsApp" : "Download PNG"}
-          </button>
-        </div>
-
         {/* Footer */}
         <div className="mt-8 text-center text-gray-500 text-sm">
           <p>
-            Drag to reposition image • Scroll to zoom • Upload your own photo or
-            use default avatars
+            Professional Profile Badge Generator • Drag to reposition photo •
+            Scroll to zoom • Adjust brightness, contrast, and saturation for
+            perfect results
           </p>
         </div>
       </div>
