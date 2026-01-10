@@ -26,34 +26,91 @@ const BG_THEMES = {
   softGray: "#1E4976", // Deep steel blue (enterprise look) - Keep original
 };
 
+// const BRANCH_CONFIG = {
+//   operational: {
+//     bg: "#e8e8e8", // Light green for operational
+//     ring: "#000000", // Green for operational
+//     gradient: "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)",
+//     name: "Operational Department",
+//     address: "Next Gen Operations",
+//   },
+//   pune: {
+//     bg: "#E6F4F4",
+//     ring: "#0C7779",
+//     gradient: "linear-gradient(135deg, #0C7779 0%, #0A5F60 100%)",
+//     name: "Pune Branch",
+//     address: "Next Gen Tech Park, Pune",
+//   },
+//   chennai: {
+//     bg: "#FBEDE6",
+//     ring: "#C75D2C",
+//     gradient: "linear-gradient(135deg, #C75D2C 0%, #A64B24 100%)",
+//     name: "Chennai Branch",
+//     address: "Next Gen Innovation Center, Chennai",
+//   },
+//   ahmedabad: {
+//     bg: "#E9EFF6",
+//     ring: "#1E4976",
+//     gradient: "linear-gradient(135deg, #1E4976 0%, #153458 100%)",
+//     name: "Ahmedabad Branch",
+//     address: "Next Gen Development Hub, Ahmedabad",
+//   },
+// };
+
+/* 🏢 Branch → Ring Colors - Different colors for each department+branch combination */
 const BRANCH_CONFIG = {
-  operational: {
-    bg: "#e8e8e8", // Light green for operational
-    ring: "#000000", // Green for operational
-    gradient: "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)",
-    name: "Operational Department",
-    address: "Next Gen Operations",
-  },
-  pune: {
+  // Sells Department (Original colors)
+  "sells-pune": {
     bg: "#E6F4F4",
     ring: "#0C7779",
     gradient: "linear-gradient(135deg, #0C7779 0%, #0A5F60 100%)",
-    name: "Pune Branch",
+    name: "Pune Branch - Sells",
     address: "Next Gen Tech Park, Pune",
+    department: "sells",
   },
-  chennai: {
+  "sells-chennai": {
     bg: "#FBEDE6",
     ring: "#C75D2C",
     gradient: "linear-gradient(135deg, #C75D2C 0%, #A64B24 100%)",
-    name: "Chennai Branch",
+    name: "Chennai Branch - Sells",
     address: "Next Gen Innovation Center, Chennai",
+    department: "sells",
   },
-  ahmedabad: {
+  "sells-ahmedabad": {
     bg: "#E9EFF6",
     ring: "#1E4976",
     gradient: "linear-gradient(135deg, #1E4976 0%, #153458 100%)",
-    name: "Ahmedabad Branch",
+    name: "Ahmedabad Branch - Sells",
     address: "Next Gen Development Hub, Ahmedabad",
+    department: "sells",
+  },
+
+  // Operations Department (Black theme variants)
+  "operations-ahmedabad": {
+    bg: "#E6F1EF", // Warm ivory
+    ring: "#163832", // Soft antique gold
+    gradient: "linear-gradient(135deg, #000000 0%, #333333 100%)",
+    name: "Ahmedabad Operations",
+    address: "Next Gen Operations Hub, Ahmedabad",
+    department: "operations",
+  },
+  "operations-chennai": {
+    bg: "#E6F1EF", // Warm ivory
+    ring: "#163832", // Soft antique gold
+    gradient: "linear-gradient(135deg, #222222 0%, #444444 100%)",
+    name: "Chennai Operations",
+    address: "Next Gen Operations Center, Chennai",
+    department: "operations",
+  },
+
+  // Management Department (Gray theme variants)
+  "management-ahmedabad": {
+    bg: "#F8F8F8",
+    ring: "#666666", // Gray
+    gradient: "linear-gradient(135deg, #666666 0%, #888888 100%)",
+    name: "Ahmedabad Headquarters",
+    address: "Next Gen Management HQ, Ahmedabad",
+    department: "management",
   },
 };
 /* 🔠 Auto font size for long text */
@@ -98,7 +155,7 @@ export default function NextGenProfileGenerator() {
   const PROFILE_Y = radius - PROFILE_R;
   /* -------- STATE -------- */
   // Add this near your other useState declarations (around line 71)
-  const [department, setDepartment] = useState(""); // Add this line
+  const [department, setDepartment] = useState("sells"); // Add this line
   const [branch, setBranch] = useState("pune");
   const [gender, setGender] = useState("male");
   const [name, setName] = useState("Parmar Vikas");
@@ -126,7 +183,7 @@ export default function NextGenProfileGenerator() {
   const svgRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  const branchConfig = BRANCH_CONFIG[branch];
+  // const branchConfig = BRANCH_CONFIG[branch];
 
   const avatarSrc = uploadedImage
     ? uploadedImage
@@ -135,6 +192,20 @@ export default function NextGenProfileGenerator() {
     : "/female.png";
 
   /* -------- IMAGE UPLOAD -------- */
+
+  // Helper function to get branch config based on department and branch
+  const getBranchConfig = (dept, branchKey) => {
+    const configKey = `${dept}-${branchKey}`;
+    return (
+      BRANCH_CONFIG[configKey] ||
+      BRANCH_CONFIG[`sells-${branchKey}`] ||
+      BRANCH_CONFIG["sells-pune"]
+    );
+  };
+
+  // Then update the branchConfig variable:
+  const branchConfig = getBranchConfig(department, branch);
+
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -406,70 +477,33 @@ export default function NextGenProfileGenerator() {
                 {/* Branch Selection */}
 
                 {/* Department Selection */}
-                {/* Department Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
                     Department Type
                   </label>
                   <div className="flex items-center space-x-4">
-                    {/* Operational Option */}
+                    {/* Sells Option */}
                     <label className="flex items-center space-x-2 cursor-pointer group">
                       <div className="relative">
                         <input
                           type="radio"
                           name="department"
-                          checked={department === "operational"}
+                          checked={department === "sells"}
                           onChange={() => {
-                            setDepartment("operational");
-                            setBranch("operational");
-                          }}
-                          className="sr-only"
-                        />
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-          ${
-            department === "operational"
-              ? "border-green-500 bg-green-500"
-              : "border-gray-300 group-hover:border-green-400"
-          }`}
-                        >
-                          {department === "operational" && (
-                            <div className="w-2 h-2 rounded-full bg-white"></div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-sm font-medium transition-colors
-          ${department === "operational" ? "text-green-700" : "text-gray-700"}`}
-                        >
-                          Operations
-                        </span>
-                      </div>
-                    </label>
-
-                    {/* Other Option */}
-                    <label className="flex items-center space-x-2 cursor-pointer group">
-                      <div className="relative">
-                        <input
-                          type="radio"
-                          name="department"
-                          checked={department === "other"}
-                          onChange={() => {
-                            setDepartment("other");
+                            setDepartment("sells");
                             setBranch("pune");
                           }}
                           className="sr-only"
                         />
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-          ${
-            department === "other"
-              ? "border-blue-500 bg-blue-500"
-              : "border-gray-300 group-hover:border-blue-400"
-          }`}
+            ${
+              department === "sells"
+                ? "border-blue-500 bg-blue-500"
+                : "border-gray-300 group-hover:border-blue-400"
+            }`}
                         >
-                          {department === "other" && (
+                          {department === "sells" && (
                             <div className="w-2 h-2 rounded-full bg-white"></div>
                           )}
                         </div>
@@ -477,30 +511,108 @@ export default function NextGenProfileGenerator() {
                       <div className="flex items-center gap-2">
                         <span
                           className={`text-sm font-medium transition-colors
-          ${department === "other" ? "text-blue-700" : "text-gray-700"}`}
+            ${department === "sells" ? "text-blue-700" : "text-gray-700"}`}
                         >
-                          Other
+                          Sells
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* Operations Option */}
+                    <label className="flex items-center space-x-2 cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="radio"
+                          name="department"
+                          checked={department === "operations"}
+                          onChange={() => {
+                            setDepartment("operations");
+                            setBranch("ahmedabad");
+                          }}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+            ${
+              department === "operations"
+                ? "border-black bg-black"
+                : "border-gray-300 group-hover:border-gray-700"
+            }`}
+                        >
+                          {department === "operations" && (
+                            <div className="w-2 h-2 rounded-full bg-white"></div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-sm font-medium transition-colors
+            ${department === "operations" ? "text-gray-900" : "text-gray-700"}`}
+                        >
+                          Operations
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* Management Option */}
+                    <label className="flex items-center space-x-2 cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="radio"
+                          name="department"
+                          checked={department === "management"}
+                          onChange={() => {
+                            setDepartment("management");
+                            setBranch("ahmedabad");
+                          }}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+            ${
+              department === "management"
+                ? "border-gray-500 bg-gray-500"
+                : "border-gray-300 group-hover:border-gray-400"
+            }`}
+                        >
+                          {department === "management" && (
+                            <div className="w-2 h-2 rounded-full bg-white"></div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-sm font-medium transition-colors
+            ${department === "management" ? "text-gray-700" : "text-gray-700"}`}
+                        >
+                          Management
                         </span>
                       </div>
                     </label>
                   </div>
                 </div>
+                {/* Branch Selection - Different options based on department */}
+                {/* Branch Selection - Different options based on department */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                    <span className="text-lg">🏢</span>
+                    {department === "sells"
+                      ? "Sales Branch"
+                      : department === "operations"
+                      ? "Operations Office"
+                      : "Management Office"}
+                  </label>
 
-                {/* Branch Selection - Only show when department is "other" */}
-                {department === "other" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                      Branch Location
-                    </label>
+                  {department === "sells" && (
                     <div className="grid grid-cols-3 gap-3">
-                      {Object.entries(BRANCH_CONFIG)
-                        .filter(([key]) => key !== "operational") // Exclude operational from branch list
-                        .map(([key, config]) => (
+                      {["pune", "chennai", "ahmedabad"].map((branchKey) => {
+                        const config = BRANCH_CONFIG[`sells-${branchKey}`];
+                        return (
                           <button
-                            key={key}
-                            onClick={() => setBranch(key)}
+                            key={branchKey}
+                            onClick={() => setBranch(branchKey)}
                             className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                              branch === key
+                              branch === branchKey
                                 ? "border-blue-500 bg-blue-50 shadow-sm"
                                 : "border-gray-200 hover:border-blue-300 hover:shadow"
                             }`}
@@ -511,19 +623,92 @@ export default function NextGenProfileGenerator() {
                                 style={{ backgroundColor: config.ring }}
                               >
                                 <span className="text-white text-xs font-bold">
-                                  {key.charAt(0).toUpperCase()}
+                                  {branchKey.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                               <span className="text-sm font-semibold text-gray-800">
-                                {config.name.split(" ")[0]}
+                                {branchKey.charAt(0).toUpperCase() +
+                                  branchKey.slice(1)}
+                              </span>
+                              <span className="text-xs text-gray-600 mt-1">
+                                Sales
                               </span>
                             </div>
                           </button>
-                        ))}
+                        );
+                      })}
                     </div>
-                  </div>
-                )}
+                  )}
 
+                  {department === "operations" && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {["ahmedabad", "chennai"].map((branchKey) => {
+                        const config = BRANCH_CONFIG[`operations-${branchKey}`];
+                        return (
+                          <button
+                            key={branchKey}
+                            onClick={() => setBranch(branchKey)}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                              branch === branchKey
+                                ? "border-black bg-gray-50 shadow-sm"
+                                : "border-gray-200 hover:border-gray-700 hover:shadow"
+                            }`}
+                          >
+                            <div className="flex flex-col items-center">
+                              <div
+                                className="w-10 h-10 rounded-full mb-2 flex items-center justify-center"
+                                style={{ backgroundColor: config.ring }}
+                              >
+                                <span className="text-white text-xs font-bold">
+                                  {branchKey.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <span className="text-sm font-semibold text-gray-800">
+                                {branchKey.charAt(0).toUpperCase() +
+                                  branchKey.slice(1)}
+                              </span>
+                              <span className="text-xs text-gray-600 mt-1">
+                                Operations
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {department === "management" && (
+                    <div className="flex justify-center">
+                      <div className="w-full max-w-xs">
+                        <button
+                          onClick={() => setBranch("ahmedabad")}
+                          className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                            branch === "ahmedabad"
+                              ? "border-gray-500 bg-gray-50 shadow-sm"
+                              : "border-gray-200 hover:border-gray-400 hover:shadow"
+                          }`}
+                        >
+                          <div className="flex flex-col items-center">
+                            <div
+                              className="w-10 h-10 rounded-full mb-2 flex items-center justify-center"
+                              style={{ backgroundColor: "#666666" }}
+                            >
+                              <span className="text-white text-xs font-bold">
+                                HQ
+                              </span>
+                            </div>
+                            <span className="text-sm font-semibold text-gray-800">
+                              Ahmedabad
+                            </span>
+                            <span className="text-xs text-gray-600 mt-1">
+                              Headquarters
+                            </span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 {/* Photo Upload Section */}
                 <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border">
                   <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
@@ -1116,28 +1301,41 @@ export default function NextGenProfileGenerator() {
                 {/* Preview Info Dashboard */}
                 <div className="w-full space-y-4 mt-4 md:mt-8">
                   <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">Branch Style:</span>
+                        <span className="text-gray-600">Department:</span>
+                        <p className="font-medium mt-1 text-gray-700">
+                          {department === "sells"
+                            ? "Sales"
+                            : department === "operations"
+                            ? "Operations"
+                            : "Management"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Branch:</span>
                         <div className="flex items-center gap-2 mt-1">
                           <div
                             className="w-4 h-4 rounded-full"
                             style={{ background: branchConfig.ring }}
                           />
                           <span className="font-medium text-gray-700">
-                            {branchConfig.name}
+                            {branch.charAt(0).toUpperCase() + branch.slice(1)}
                           </span>
                         </div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Photo:</span>
+                        <span className="text-gray-600">Theme:</span>
                         <p className="font-medium mt-1 text-gray-700">
-                          {isUploaded ? "Custom Upload" : `Default (${gender})`}
+                          {department === "sells"
+                            ? "Blue Theme"
+                            : department === "operations"
+                            ? "Black Theme"
+                            : "Gray Theme"}
                         </p>
                       </div>
-                    </div>{" "}
+                    </div>
                   </div>
-
                   {/* Company Portal Preview */}
                   <div className="border rounded-xl p-4 bg-white shadow-sm">
                     <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
@@ -1153,6 +1351,9 @@ export default function NextGenProfileGenerator() {
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs px-2 py-1 bg-teal-100 text-teal-700 rounded">
                             {branchConfig.name.split(" ")[0]}
+                          </span>
+                          <span className="text-xs px-2 py-1 bg-teal-100 text-teal-700 rounded">
+                            {branchConfig.department.split(" ")[0]}
                           </span>
                         </div>
                       </div>
