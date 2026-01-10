@@ -28,8 +28,8 @@ const BG_THEMES = {
 
 const BRANCH_CONFIG = {
   operational: {
-    bg: "#e8eff7", // Light green for operational
-    ring: "#1c4268", // Green for operational
+    bg: "#e8e8e8", // Light green for operational
+    ring: "#000000", // Green for operational
     gradient: "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)",
     name: "Operational Department",
     address: "Next Gen Operations",
@@ -443,7 +443,7 @@ export default function NextGenProfileGenerator() {
                           className={`text-sm font-medium transition-colors
           ${department === "operational" ? "text-green-700" : "text-gray-700"}`}
                         >
-                          Operational
+                          Operations
                         </span>
                       </div>
                     </label>
