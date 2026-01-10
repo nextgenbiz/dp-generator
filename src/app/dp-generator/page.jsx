@@ -91,6 +91,8 @@ export default function NextGenProfileGenerator() {
   const PROFILE_X = radius - PROFILE_R;
   const PROFILE_Y = radius - PROFILE_R;
   /* -------- STATE -------- */
+
+  const [lastTouch, setLastTouch] = useState({ x: 0, y: 0 });
   const [branch, setBranch] = useState("pune");
   const [gender, setGender] = useState("male");
   const [name, setName] = useState("Parmar Vikas");
@@ -198,6 +200,76 @@ export default function NextGenProfileGenerator() {
       svg.removeEventListener("wheel", wheelHandler);
     };
   }, [isUploaded]);
+
+  /* -------- TOUCH EVENTS FOR MOBILE -------- */
+  const handleTouchStart = (e) => {
+    if (!isUploaded) return;
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setLastTouch({ x: touch.clientX, y: touch.clientY });
+    setLastMouse({ x: touch.clientX, y: touch.clientY }); // Also for compatibility
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging || !isUploaded) return;
+    e.preventDefault(); // Prevent scrolling while dragging
+
+    const touch = e.touches[0];
+    const dx = touch.clientX - lastTouch.x;
+    const dy = touch.clientY - lastTouch.y;
+
+    setOffsetX((prev) => prev + dx);
+    setOffsetY((prev) => prev + dy);
+
+    setLastTouch({ x: touch.clientX, y: touch.clientY });
+    setLastMouse({ x: touch.clientX, y: touch.clientY }); // Also for compatibility
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  /* -------- PINCH ZOOM FOR MOBILE -------- */
+  const [initialPinchDistance, setInitialPinchDistance] = useState(null);
+  const [lastZoom, setLastZoom] = useState(0);
+
+  const handleTouchStartPinch = (e) => {
+    if (e.touches.length === 2) {
+      // Calculate initial distance between two fingers
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      setInitialPinchDistance(distance);
+      setLastZoom(zoomOffset);
+    }
+  };
+
+  const handleTouchMovePinch = (e) => {
+    if (e.touches.length === 2 && initialPinchDistance !== null) {
+      e.preventDefault();
+
+      // Calculate current distance between two fingers
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const currentDistance = Math.sqrt(dx * dx + dy * dy);
+
+      // Calculate zoom change based on pinch
+      const zoomChange = (currentDistance - initialPinchDistance) * 0.5;
+
+      setZoomOffset((prev) => {
+        const next = lastZoom + zoomChange;
+        return Math.max(-100, Math.min(100, next));
+      });
+    } else if (e.touches.length === 1 && isDragging) {
+      // Single touch drag
+      handleTouchMove(e);
+    }
+  };
+
+  const handleTouchEndPinch = () => {
+    setInitialPinchDistance(null);
+    setIsDragging(false);
+  };
 
   /* -------- PRELOAD IMAGES -------- */
   useEffect(() => {
@@ -636,21 +708,40 @@ export default function NextGenProfileGenerator() {
                 </div>
 
                 {/* Main Preview Container */}
-                <div className="relative mb-8">
+                <div className="w-[280px] sm:w-[360px] md:w-[420px] lg:w-[512px]">
                   {/* Company Badge */}
 
                   <svg
                     ref={svgRef}
-                    width={size}
-                    height={size}
+                    width="100%"
+                    height="100%"
                     viewBox={`0 0 ${size} ${size}`}
                     className={`rounded-full shadow-2xl transition-transform relative z-0 ${
                       isDragging ? "cursor-grabbing" : "cursor-grab"
                     }`}
+                    // Mouse events for desktop
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={stopDragging}
                     onMouseLeave={stopDragging}
+                    // Touch events for mobile
+                    onTouchStart={(e) => {
+                      if (e.touches.length === 1) {
+                        handleTouchStart(e);
+                      }
+                      handleTouchStartPinch(e);
+                    }}
+                    onTouchMove={handleTouchMovePinch}
+                    onTouchEnd={(e) => {
+                      if (e.touches.length === 0) {
+                        handleTouchEnd();
+                        handleTouchEndPinch();
+                      }
+                    }}
+                    onTouchCancel={handleTouchEnd}
+                    style={{
+                      touchAction: "none", // Prevent browser's default touch actions
+                    }}
                   >
                     <defs>
                       <clipPath id="photoClip">
