@@ -59,30 +59,30 @@ const BG_THEMES = {
 
 /* 🏢 Branch → Ring Colors - Different colors for each department+branch combination */
 const BRANCH_CONFIG = {
-  // Sells Department (Original colors)
-  "sells-pune": {
+  // Sales Department (Original colors)
+  "Sales-pune": {
     bg: "#E6F4F4",
     ring: "#0C7779",
     gradient: "linear-gradient(135deg, #0C7779 0%, #0A5F60 100%)",
-    name: "Pune Branch - Sells",
+    name: "Pune Branch - Sales",
     address: "Next Gen Tech Park, Pune",
-    department: "sells",
+    department: "Sales",
   },
-  "sells-chennai": {
+  "Sales-chennai": {
     bg: "#FBEDE6",
     ring: "#C75D2C",
     gradient: "linear-gradient(135deg, #C75D2C 0%, #A64B24 100%)",
-    name: "Chennai Branch - Sells",
+    name: "Chennai Branch - Sales",
     address: "Next Gen Innovation Center, Chennai",
-    department: "sells",
+    department: "Sales",
   },
-  "sells-ahmedabad": {
+  "Sales-ahmedabad": {
     bg: "#E9EFF6",
     ring: "#1E4976",
     gradient: "linear-gradient(135deg, #1E4976 0%, #153458 100%)",
-    name: "Ahmedabad Branch - Sells",
+    name: "Ahmedabad Branch - Sales",
     address: "Next Gen Development Hub, Ahmedabad",
-    department: "sells",
+    department: "Sales",
   },
 
   // Operations Department (Black theme variants)
@@ -155,7 +155,7 @@ export default function NextGenProfileGenerator() {
   const PROFILE_Y = radius - PROFILE_R;
   /* -------- STATE -------- */
   // Add this near your other useState declarations (around line 71)
-  const [department, setDepartment] = useState("sells"); // Add this line
+  const [department, setDepartment] = useState("Sales"); // Add this line
   const [branch, setBranch] = useState("pune");
   const [gender, setGender] = useState("male");
   const [name, setName] = useState("Parmar Vikas");
@@ -198,8 +198,8 @@ export default function NextGenProfileGenerator() {
     const configKey = `${dept}-${branchKey}`;
     return (
       BRANCH_CONFIG[configKey] ||
-      BRANCH_CONFIG[`sells-${branchKey}`] ||
-      BRANCH_CONFIG["sells-pune"]
+      BRANCH_CONFIG[`Sales-${branchKey}`] ||
+      BRANCH_CONFIG["Sales-pune"]
     );
   };
 
@@ -482,15 +482,15 @@ export default function NextGenProfileGenerator() {
                     Department Type
                   </label>
                   <div className="flex items-center space-x-4">
-                    {/* Sells Option */}
+                    {/* Sales Option */}
                     <label className="flex items-center space-x-2 cursor-pointer group">
                       <div className="relative">
                         <input
                           type="radio"
                           name="department"
-                          checked={department === "sells"}
+                          checked={department === "Sales"}
                           onChange={() => {
-                            setDepartment("sells");
+                            setDepartment("Sales");
                             setBranch("pune");
                           }}
                           className="sr-only"
@@ -498,12 +498,12 @@ export default function NextGenProfileGenerator() {
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
             ${
-              department === "sells"
+              department === "Sales"
                 ? "border-blue-500 bg-blue-500"
                 : "border-gray-300 group-hover:border-blue-400"
             }`}
                         >
-                          {department === "sells" && (
+                          {department === "Sales" && (
                             <div className="w-2 h-2 rounded-full bg-white"></div>
                           )}
                         </div>
@@ -511,9 +511,9 @@ export default function NextGenProfileGenerator() {
                       <div className="flex items-center gap-2">
                         <span
                           className={`text-sm font-medium transition-colors
-            ${department === "sells" ? "text-blue-700" : "text-gray-700"}`}
+            ${department === "Sales" ? "text-blue-700" : "text-gray-700"}`}
                         >
-                          Sells
+                          Sales
                         </span>
                       </div>
                     </label>
@@ -595,18 +595,17 @@ export default function NextGenProfileGenerator() {
                 {/* Branch Selection - Different options based on department */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                    <span className="text-lg">🏢</span>
-                    {department === "sells"
-                      ? "Sales Branch"
+                    {department === "Sales"
+                      ? "Sales Office"
                       : department === "operations"
                       ? "Operations Office"
                       : "Management Office"}
                   </label>
 
-                  {department === "sells" && (
+                  {department === "Sales" && (
                     <div className="grid grid-cols-3 gap-3">
                       {["pune", "chennai", "ahmedabad"].map((branchKey) => {
-                        const config = BRANCH_CONFIG[`sells-${branchKey}`];
+                        const config = BRANCH_CONFIG[`Sales-${branchKey}`];
                         return (
                           <button
                             key={branchKey}
@@ -709,6 +708,48 @@ export default function NextGenProfileGenerator() {
                     </div>
                   )}
                 </div>
+
+                {/* Gender Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Default Avatar
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        setGender("male");
+                        setUploadedImage(null);
+                      }}
+                      className={`p-4 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                        gender === "male" && !isUploaded
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center">
+                        👨
+                      </div>
+                      <span className="font-medium text-gray-700">Male</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setGender("female");
+                        setUploadedImage(null);
+                      }}
+                      className={`p-4 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                        gender === "female" && !isUploaded
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-pink-200 flex items-center justify-center">
+                        👩
+                      </div>
+                      <span className="font-medium text-gray-700">Female</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Photo Upload Section */}
                 <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border">
                   <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
@@ -1305,7 +1346,7 @@ export default function NextGenProfileGenerator() {
                       <div>
                         <span className="text-gray-600">Department:</span>
                         <p className="font-medium mt-1 text-gray-700">
-                          {department === "sells"
+                          {department === "Sales"
                             ? "Sales"
                             : department === "operations"
                             ? "Operations"
@@ -1327,7 +1368,7 @@ export default function NextGenProfileGenerator() {
                       <div>
                         <span className="text-gray-600">Theme:</span>
                         <p className="font-medium mt-1 text-gray-700">
-                          {department === "sells"
+                          {department === "Sales"
                             ? "Blue Theme"
                             : department === "operations"
                             ? "Black Theme"
