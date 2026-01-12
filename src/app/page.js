@@ -595,6 +595,11 @@ export default function NextGenProfileGenerator() {
                 {/* Branch Selection - Different options based on department */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                    <img
+                      src="icons8-building-48.png"
+                      alt="Building"
+                      className="w-6 h-6"
+                    />
                     {department === "Sales"
                       ? "Sales Office"
                       : department === "operations"
@@ -753,6 +758,11 @@ export default function NextGenProfileGenerator() {
                 {/* Photo Upload Section */}
                 <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border">
                   <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <img
+                      src="icons8-picture-48.png"
+                      alt="Building"
+                      className="w-6 h-6"
+                    />
                     Professional Photo
                   </h3>
 
