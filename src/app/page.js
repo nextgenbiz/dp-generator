@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
+import Header from "@/componenet/Header";
+import Footer from "@/componenet/Footer";
 
 /* 🏢 NEXT GEN COMPANY CONFIG */
 const COMPANY_CONFIG = {
@@ -69,8 +71,8 @@ const BRANCH_CONFIG = {
     department: "Sales",
   },
   "Sales-chennai": {
-    bg: "#FBEDE6",
-    ring: "#C75D2C",
+    bg: "#F3E9E7",
+    ring: "#481E14",
     gradient: "linear-gradient(135deg, #C75D2C 0%, #A64B24 100%)",
     name: "Chennai Branch - Sales",
     address: "Next Gen Innovation Center, Chennai",
@@ -188,8 +190,8 @@ export default function NextGenProfileGenerator() {
   const avatarSrc = uploadedImage
     ? uploadedImage
     : gender === "male"
-    ? "/male.png"
-    : "/female.png";
+      ? "/male.png"
+      : "/female.png";
 
   /* -------- IMAGE UPLOAD -------- */
 
@@ -395,7 +397,7 @@ export default function NextGenProfileGenerator() {
     } catch (error) {
       console.error("Error generating PNG:", error);
       alert(
-        "Failed to generate image. Please make sure all images are loaded and try again."
+        "Failed to generate image. Please make sure all images are loaded and try again.",
       );
     } finally {
       setIsDownloading(false);
@@ -416,48 +418,7 @@ export default function NextGenProfileGenerator() {
     <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Company Header */}
-        <div className="mb-4 md:mb-8 bg-gradient-to-r from-blue-600 to-teal-500 rounded-xl md:rounded-2xl p-3 md:p-6 text-white shadow-lg md:shadow-xl">
-          <div className="flex items-center justify-between">
-            {/* Mobile: Logo on left */}
-            <div className="md:hidden flex items-center">
-              <img src="/whiteLogo.png" alt="Next Gen" className="h-8 w-auto" />
-            </div>
-
-            {/* Mobile: Title on right */}
-            <div className="md:hidden">
-              <h1 className="text-lg font-semibold leading-none">
-                Profile Studio
-              </h1>
-            </div>
-
-            {/* Desktop: Original layout */}
-            <div className="hidden md:flex items-center gap-3 w-full md:justify-between">
-              {/* Logo + Title together */}
-              <div className="flex items-center gap-4 mb-4 md:mb-0">
-                {/* Company Logo */}
-                <div className="w-30 h-14  flex items-center justify-center">
-                  <img
-                    src="/whiteLogo.png"
-                    alt="Next Gen"
-                    className="w-30 h-10"
-                  />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold"> Profile Studio</h1>
-                  <p className="text-blue-100">{COMPANY_CONFIG.tagline}</p>
-                </div>
-              </div>
-
-              {/* Internal Tool badge */}
-              <div className="text-right">
-                <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
-                  <p className="text-sm font-medium">Internal Tool v1.1</p>
-                  <p className="text-xs opacity-90">For Next Gen Employees</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Header tagline={COMPANY_CONFIG.tagline} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Controls */}
@@ -603,8 +564,8 @@ export default function NextGenProfileGenerator() {
                     {department === "Sales"
                       ? "Sales Office"
                       : department === "operations"
-                      ? "Operations Office"
-                      : "Management Office"}
+                        ? "Operations Office"
+                        : "Management Office"}
                   </label>
 
                   {department === "Sales" && (
@@ -1359,8 +1320,8 @@ export default function NextGenProfileGenerator() {
                           {department === "Sales"
                             ? "Sales"
                             : department === "operations"
-                            ? "Operations"
-                            : "Management"}
+                              ? "Operations"
+                              : "Management"}
                         </p>
                       </div>
                       <div>
@@ -1381,8 +1342,8 @@ export default function NextGenProfileGenerator() {
                           {department === "Sales"
                             ? "Blue Theme"
                             : department === "operations"
-                            ? "Black Theme"
-                            : "Gray Theme"}
+                              ? "Black Theme"
+                              : "Gray Theme"}
                         </p>
                       </div>
                     </div>
@@ -1489,43 +1450,10 @@ export default function NextGenProfileGenerator() {
         {/* Company Footer */}
         {/* Company Footer */}
         {/* Company Footer */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 text-center md:text-left">
-            {/* LEFT */}
-            <div className="flex items-center gap-3 justify-center md:justify-start">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-teal-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">NG</span>
-              </div>
-              <div>
-                <p className="font-bold text-gray-800">Next Gen Business</p>
-                <p className="text-sm text-gray-600">
-                  {COMPANY_CONFIG.tagline}
-                </p>
-              </div>
-            </div>
-
-            {/* CENTER */}
-            <div className="text-center">
-              <p className="text-xs text-gray-400 italic leading-snug">
-                Developed with{" "}
-                <span className="not-italic text-blue-500">🩵</span> by Digital
-                Team
-                <br className="hidden sm:block" />
-                at NextGen Business Consultancy Private Limited
-              </p>
-            </div>
-
-            {/* RIGHT */}
-            <div className="text-center md:text-right">
-              <p className="text-sm text-gray-500">
-                {COMPANY_CONFIG.copyright}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Profile Generator v1.1 • For internal company use only
-              </p>
-            </div>
-          </div>
-        </div>
+        <Footer
+          tagline={COMPANY_CONFIG.tagline}
+          copyright={COMPANY_CONFIG.copyright}
+        />
       </div>
     </div>
   );
