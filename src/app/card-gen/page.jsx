@@ -17,7 +17,7 @@ const COMPANY_CONFIG = {
 const initialData = {
   name: "PARMAR VIKAS",
   designation: "Full-Stack Developer",
-  phone: "7567464523",
+  phone: "9898346774",
   email: "vikas@nextgenbusiness.co.in",
   branch: "Ahemedabad",
 };
@@ -276,9 +276,13 @@ export default function BusinessCard() {
                             className="select-none"
                           />
 
-                          <p className="mt-[2px] text-[10px] tracking-[2px] text-white uppercase">
-                            NextGen Business
-                          </p>
+                          <div className="mt-[4px] text-[8px] tracking-[2px] text-white uppercase text-center leading-[9px]">
+                            <span className="block">
+                              NEXT-GEN BUSINESS CONSULTANCY PVT. LTD.
+                            </span>
+                            {/* <span className="block">BUSINESS CONSULTANCY</span>
+                            <span className="block">PRIVATE LIMITED</span> */}
+                          </div>
                         </div>
                       </div>
                     </div>
