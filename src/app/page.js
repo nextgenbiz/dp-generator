@@ -87,6 +87,33 @@ const BRANCH_CONFIG = {
     department: "Sales",
   },
 
+  "Admin-pune": {
+    bg: "#F2EEFA",
+    ring: "#4B2E83",
+    gradient: "linear-gradient(135deg, #4B2E83 0%, #36205E 100%)",
+    name: "Pune Branch - Admin",
+    address: "Next Gen Tech Park, Pune",
+    department: "Admin",
+  },
+
+  "Admin-chennai": {
+    bg: "#F2EEFA",
+    ring: "#4B2E83",
+    gradient: "linear-gradient(135deg, #2F3E46 0%, #1F2A30 100%)",
+    name: "Chennai Branch - Admin",
+    address: "Next Gen Innovation Center, Chennai",
+    department: "Admin",
+  },
+
+  "Admin-ahmedabad": {
+    bg: "#F2EEFA",
+    ring: "#4B2E83",
+    gradient: "linear-gradient(135deg, #5A4E7C 0%, #40375E 100%)",
+    name: "Ahmedabad Branch - Admin",
+    address: "Next Gen Development Hub, Ahmedabad",
+    department: "Admin",
+  },
+
   // Operations Department (Black theme variants)
   "operations-ahmedabad": {
     bg: "#E6F1EF", // Warm ivory
@@ -479,6 +506,40 @@ export default function NextGenProfileGenerator() {
                       </div>
                     </label>
 
+                    {/* Admin Option */}
+                    <label className="flex items-center space-x-2 cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="radio"
+                          name="department"
+                          checked={department === "Admin"}
+                          onChange={() => {
+                            setDepartment("Admin");
+                            setBranch("pune");
+                          }}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+        ${
+          department === "Admin"
+            ? "border-purple-600 bg-purple-600"
+            : "border-gray-300 group-hover:border-purple-400"
+        }`}
+                        >
+                          {department === "Admin" && (
+                            <div className="w-2 h-2 rounded-full bg-white"></div>
+                          )}
+                        </div>
+                      </div>
+                      <span
+                        className={`text-sm font-medium transition-colors
+      ${department === "Admin" ? "text-purple-700" : "text-gray-700"}`}
+                      >
+                        Admin
+                      </span>
+                    </label>
+
                     {/* Operations Option */}
                     <label className="flex items-center space-x-2 cursor-pointer group">
                       <div className="relative">
@@ -496,7 +557,7 @@ export default function NextGenProfileGenerator() {
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
             ${
               department === "operations"
-                ? "border-black bg-black"
+                ? "border-[#163832] bg-[#163832]"
                 : "border-gray-300 group-hover:border-gray-700"
             }`}
                         >
@@ -565,7 +626,9 @@ export default function NextGenProfileGenerator() {
                       ? "Sales Office"
                       : department === "operations"
                         ? "Operations Office"
-                        : "Management Office"}
+                        : department === "Admin"
+                          ? "Admin Office"
+                          : "Management Office"}
                   </label>
 
                   {department === "Sales" && (
@@ -597,6 +660,43 @@ export default function NextGenProfileGenerator() {
                               </span>
                               <span className="text-xs text-gray-600 mt-1">
                                 Sales
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {department === "Admin" && (
+                    <div className="grid grid-cols-3 gap-3">
+                      {["pune", "chennai", "ahmedabad"].map((branchKey) => {
+                        const config = BRANCH_CONFIG[`Admin-${branchKey}`];
+                        return (
+                          <button
+                            key={branchKey}
+                            onClick={() => setBranch(branchKey)}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                              branch === branchKey
+                                ? "border-purple-500 bg-purple-50 shadow-sm"
+                                : "border-gray-200 hover:border-purple-300 hover:shadow"
+                            }`}
+                          >
+                            <div className="flex flex-col items-center">
+                              <div
+                                className="w-10 h-10 rounded-full mb-2 flex items-center justify-center"
+                                style={{ backgroundColor: config.ring }}
+                              >
+                                <span className="text-white text-xs font-bold">
+                                  {branchKey.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <span className="text-sm font-semibold text-gray-800">
+                                {branchKey.charAt(0).toUpperCase() +
+                                  branchKey.slice(1)}
+                              </span>
+                              <span className="text-xs text-gray-600 mt-1">
+                                Admin
                               </span>
                             </div>
                           </button>
@@ -1342,8 +1442,10 @@ export default function NextGenProfileGenerator() {
                           {department === "Sales"
                             ? "Blue Theme"
                             : department === "operations"
-                              ? "Black Theme"
-                              : "Gray Theme"}
+                              ? "Green Theme"
+                              : department === "Admin"
+                                ? "Purple Theme"
+                                : "Gray Theme"}
                         </p>
                       </div>
                     </div>
