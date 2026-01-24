@@ -63,16 +63,17 @@ const BG_THEMES = {
 const BRANCH_CONFIG = {
   // Sales Department (Original colors)
   "Sales-pune": {
-    bg: "#E6F4F4",
-    ring: "#0C7779",
+    bg: "#F2ECE7",
+    ring: "#5A2E1F",
+
     gradient: "linear-gradient(135deg, #0C7779 0%, #0A5F60 100%)",
     name: "Pune Branch - Sales",
     address: "Next Gen Tech Park, Pune",
     department: "Sales",
   },
   "Sales-chennai": {
-    bg: "#F3E9E7",
-    ring: "#481E14",
+    bg: "#F4EFEA",
+    ring: "#C96A32",
     gradient: "linear-gradient(135deg, #C75D2C 0%, #A64B24 100%)",
     name: "Chennai Branch - Sales",
     address: "Next Gen Innovation Center, Chennai",
@@ -205,7 +206,7 @@ export default function NextGenProfileGenerator() {
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(105);
   const [saturation, setSaturation] = useState(110);
-  const [includeWatermark, setIncludeWatermark] = useState(false);
+  const [includeWatermark, setIncludeWatermark] = useState(true);
   const [useCompanyTheme, setUseCompanyTheme] = useState(false);
   const [lastTouch, setLastTouch] = useState({ x: 0, y: 0 });
 
