@@ -7,6 +7,7 @@ import { useState } from "react";
 const NAV_ITEMS = [
   { label: "WhatsApp DP", href: "/" },
   { label: "Business Card", href: "/card-gen" },
+  { label: "Email Signature", href: "/emailformat" },
 ];
 
 export default function Header({ tagline }) {
