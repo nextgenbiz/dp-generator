@@ -17,7 +17,7 @@ const COMPANY = {
     facebook: "https://www.facebook.com/profile.php?id=61574060610065",
     youtube: "https://youtube.com/@nextgenbusiness",
     linkedin: "https://www.linkedin.com/company/106884094/admin/dashboard/",
-    instagram: "https://www.instagram.com/next_gen_business_consultancy/",
+    instagram: "https://www.instagram.com/nextgengroup_in/",
   },
   branches: [
     {
