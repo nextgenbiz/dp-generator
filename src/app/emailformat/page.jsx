@@ -11,7 +11,7 @@ const COMPANY_CONFIG = {
 
 const COMPANY = {
   name: "Next-Gen Business Consultancy PVT. LTD",
-  logoUrl: "Final-logo.png",
+  logoUrl: "Final-Logo2.jpeg",
   website: "www.nextgenbusiness.co.in",
   socials: {
     facebook: "https://www.facebook.com/profile.php?id=61574060610065",
